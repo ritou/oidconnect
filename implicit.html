@@ -1,0 +1,215 @@
+<html>
+    <head xmlns:og="http://opengraphprotocol.org/schema/">
+        <meta http-equiv="Pragma" content="no-cache">
+        <meta http-equiv="Cache-Control" content="no-cache">
+        <meta charset="utf-8" />
+        <meta property="og:title" content="OpenID Connect Sample RP Implicit Flow" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="http://www8322u.sakura.ne.jp/oidconnect/implicit.html" />
+        <meta property="og:image" content="http://www8322u.sakura.ne.jp/oidconnect/images/logo.png" />
+        <meta property="og:description" content="This is OpenID Connect Sample RP  using Google(OP)." />
+        <title>OpenID Connect Sample RP Implicit Flow</title>
+        <link rel="shortcut icon" href="./images/favicon.ico">
+        <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+        <script type="text/javascript">
+            google.load("jquery", "1");
+        </script>
+    </head>
+    <body>
+        <h1>OpenID Connect Sample RP Implicit Flow</h1>
+        <pre>
+This is OpenID Connect Sample RP  using Google(OP).
+Flow : Implicit Flow (Authorization Code Flow is <a href="http://www8322u.sakura.ne.jp/oidconnect/">here</a>)
+
+Google's sample RP and Document : <a href="http://oauthssodemo.appspot.com/step/1" target="_blank">http://oauthssodemo.appspot.com/step/1</a>
+        </pre>
+
+        <div id="link"></div>
+        <div id="token">
+            <h2>TokenInfo</h2>
+            <ul id="tokeninfo"></ul>
+        </div>
+        <div id="info">
+            <h2>UserInfo</h2>
+            <ul id="userinfo"></ul>
+        </div>
+        <div id="fb">
+            <iframe src="http://www.facebook.com/plugins/like.php?app_id=225511477484508&amp;href=http%3A%2F%2Fwww8322u.sakura.ne.jp%2Foidconnect%2Fimplicit.html&amp;send=false&amp;layout=standard&amp;width=450&amp;show_faces=true&amp;action=like&amp;colorscheme=light&amp;font&amp;height=80" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:450px; height:80px;" allowTransparency="true"></iframe>
+            <div id="fb-root"></div>
+            <script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script>
+            <fb:comments href="http://www8322u.sakura.ne.jp/oidconnect/implicit.html" num_posts="5" width="500"></fb:comments>
+        </div>
+        <hr>
+    <footer>
+        <small class="copytight">&copy; 2011 <a href="http://twitter.com/#!/ritou">@ritou</a></small>
+    </footer>
+    <script type="text/javascript">
+        <!--
+        var access_token;
+        access_token = getAccessToken();
+        if(access_token == ""){
+            setAuthZUrlLink();
+        }else{
+            setRestartLink();
+            getTokenInfo(access_token);
+            getUserInfo(access_token);
+        }
+
+        function getAccessToken(){
+            var atoken = "";
+            var lochash_arr;
+
+            lochash_arr = location.hash.slice(1).split("&");
+            for (var i = 0; i < lochash_arr.length; i ++) {
+                if (lochash_arr[i].substr(0,13) == "access_token=" ) {
+                    atoken = lochash_arr[i].substr(13);
+                }
+            }
+            return atoken;
+        }
+
+        function setAuthZUrlLink()
+        {
+            var a = document.createElement('a');
+            a.appendChild(document.createTextNode('START DEMO'));
+            a.href = getAuthZUrl();
+            document.getElementById('link').appendChild(a);
+        }
+
+        function getAuthZUrl(){
+            var authz_endpoint = "https://accounts.google.com/o/oauth2/auth";
+            var params = [];
+            params["client_id"] = "26633205769-d1bcum4mssh9d19g82vfg37kqq5vp24d.apps.googleusercontent.com";
+            params["redirect_uri"] = "http://www8322u.sakura.ne.jp/oidconnect/implicit.html";
+            params["response_type"] = "token";
+            params["scope"] = "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
+            params["state"] = "";
+            var authz_url = authz_endpoint;
+            for( var idx in params ){
+                if(authz_url.indexOf("?") > 0){
+                    authz_url += "&";
+                }else{
+                    authz_url += "?";
+                }
+                authz_url += idx + "=" + encodeURIComponent(params[idx]);
+            }
+            return authz_url;
+        }
+
+        function setRestartLink()
+        {
+            var a = document.createElement('a');
+            a.appendChild(document.createTextNode('RESTART'));
+            a.href = "./implicit.html";
+            document.getElementById('link').appendChild(a);
+
+            document.getElementById('link').appendChild(document.createTextNode("   "));
+
+            a = document.createElement('a');
+            a.appendChild(document.createTextNode('DISABLE ACCESS TOKEN'));
+            a.href = "https://www.google.com/accounts/IssuedAuthSubTokens";
+            a.target = "google";
+            document.getElementById('link').appendChild(a);
+        }
+
+        function getTokenInfo(tokenstr) {
+            var url = "https://accounts.google.com/o/oauth2/tokeninfo?callback=?";
+            var param = {
+                access_token: tokenstr
+            };
+            $.getJSON(url, param, callback_tokeninfo);
+        }
+
+        function callback_tokeninfo(data) {
+            var list = document.getElementById("tokeninfo");
+            var newLi;
+            var newTxt;
+
+            newTxt = document.createTextNode( "issued_to : " + data.issued_to );
+            newLi = document.createElement("li")
+            newLi.appendChild ( newTxt );
+            list.appendChild( newLi );
+
+            newTxt = document.createTextNode( "scope : " + data.scope );
+            newLi = document.createElement("li")
+            newLi.appendChild ( newTxt );
+            list.appendChild( newLi );
+
+            newTxt = document.createTextNode( "audience : " + data.audience );
+            newLi = document.createElement("li")
+            newLi.appendChild ( newTxt );
+            list.appendChild( newLi );
+
+            newTxt = document.createTextNode( "user_id : " + data.user_id );
+            newLi = document.createElement("li")
+            newLi.appendChild ( newTxt );
+            list.appendChild( newLi );
+
+            newTxt = document.createTextNode( "expires_in : " + data.expires_in );
+            newLi = document.createElement("li")
+            newLi.appendChild ( newTxt );
+            list.appendChild( newLi );
+        }
+
+        function getUserInfo(tokenstr) {
+            var url = "https://www.googleapis.com/oauth2/v1/userinfo?callback=?";
+            var param = {
+                access_token: tokenstr
+            };
+            $.getJSON(url, param, callback_userinfo);
+        }
+
+        function callback_userinfo(data) {
+            var list = document.getElementById("userinfo");
+            var newLi;
+            var newTxt;
+
+            newTxt = document.createTextNode( "id : " + data.id );
+            newLi = document.createElement("li")
+            newLi.appendChild ( newTxt );
+            list.appendChild( newLi );
+
+            newTxt = document.createTextNode( "email : " + data.email );
+            newLi = document.createElement("li")
+            newLi.appendChild ( newTxt );
+            list.appendChild( newLi );
+
+            newTxt = document.createTextNode( "verified_email : " + data.verified_email );
+            newLi = document.createElement("li")
+            newLi.appendChild ( newTxt );
+            list.appendChild( newLi );
+
+            newTxt = document.createTextNode( "name : " + data.name );
+            newLi = document.createElement("li")
+            newLi.appendChild ( newTxt );
+            list.appendChild( newLi );
+
+            newTxt = document.createTextNode( "given_name : " + data.given_name );
+            newLi = document.createElement("li")
+            newLi.appendChild ( newTxt );
+            list.appendChild( newLi );
+
+            newTxt = document.createTextNode( "family_name : " + data.family_name );
+            newLi = document.createElement("li")
+            newLi.appendChild ( newTxt );
+            list.appendChild( newLi );
+
+            newTxt = document.createTextNode( "link : " + data.link );
+            newLi = document.createElement("li")
+            newLi.appendChild ( newTxt );
+            list.appendChild( newLi );
+
+            newTxt = document.createTextNode( "picture : " + data.picture );
+            newLi = document.createElement("li")
+            newLi.appendChild ( newTxt );
+            list.appendChild( newLi );
+
+            newTxt = document.createTextNode( "gender : " + data.gender );
+            newLi = document.createElement("li")
+            newLi.appendChild ( newTxt );
+            list.appendChild( newLi );
+        }
+        -->
+    </script>
+</body>
+</html>
